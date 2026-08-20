@@ -25,6 +25,17 @@ export const authApi = {
 
 export const roomsApi = {
   list: () => request("/rooms"),
+  create: (title, token) =>
+    request("/rooms", {
+      method: "POST",
+      body: JSON.stringify({ title }),
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+  getVoiceToken: (roomId, token) =>
+    request(`/rooms/${roomId}/token`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    }),
 };
 
 export const walletApi = {

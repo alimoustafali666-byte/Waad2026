@@ -10,7 +10,16 @@
       "backgroundColor": "#3B1826"
     },
     "assetBundlePatterns": ["**/*"],
-    "ios": { "supportsTablet": false, "bundleIdentifier": "com.waad.app" },
-    "android": { "package": "com.waad.app" }
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.waad.app",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "يحتاج وعد إلى الميكروفون للتحدث في الغرف الصوتية."
+      }
+    },
+    "android": {
+      "package": "com.waad.app",
+      "permissions": ["RECORD_AUDIO", "MODIFY_AUDIO_SETTINGS"]
+    }
   }
 }
