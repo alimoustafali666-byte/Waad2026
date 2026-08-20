@@ -8,6 +8,9 @@ create table users (
   display_name text not null,
   country_code text not null default 'AE', -- AE / SA / EG لاحقًا
   is_host boolean not null default false,
+  bio text not null default '',
+  avatar_emoji text not null default '🐺',
+  equipped_frame_id uuid,
   created_at timestamptz not null default now()
 );
 
@@ -81,3 +84,90 @@ create table payout_requests (
   status text not null default 'pending', -- pending / approved / paid / rejected
   requested_at timestamptz not null default now()
 );
+
+-- مقاعد الميكروفون داخل كل غرفة (٨ مقاعد افتراضيًا، مقعد فارغ = user_id فارغ)
+create table room_seats (
+  id uuid primary key default uuid_generate_v4(),
+  room_id uuid not null references rooms(id) on delete cascade,
+  seat_number int not null,
+  user_id uuid references users(id),
+  is_muted boolean not null default false,
+  unique (room_id, seat_number)
+);
+
+create index idx_room_seats_room on room_seats(room_id);
+
+-- الدردشة النصية داخل الغرفة
+create table room_messages (
+  id uuid primary key default uuid_generate_v4(),
+  room_id uuid not null references rooms(id) on delete cascade,
+  user_id uuid not null references users(id),
+  message text not null,
+  created_at timestamptz not null default now()
+);
+
+create index idx_room_messages_room on room_messages(room_id, created_at);
+
+-- قائمة الهدايا الافتراضية المتاحة للإرسال
+create table gift_catalog (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  emoji text not null,
+  coin_cost bigint not null,
+  diamond_value bigint not null,
+  sort_order int not null default 0
+);
+
+insert into gift_catalog (name, emoji, coin_cost, diamond_value, sort_order) values
+  ('وردة', '🌹', 10, 8, 1),
+  ('قلب', '❤️', 50, 40, 2),
+  ('تاج', '👑', 500, 400, 3),
+  ('سيارة', '🚗', 2000, 1600, 4),
+  ('ذئب وعد', '🐺', 5000, 4000, 5);
+
+-- المتابعة بين المستخدمين
+create table follows (
+  follower_id uuid not null references users(id),
+  followed_id uuid not null references users(id),
+  created_at timestamptz not null default now(),
+  primary key (follower_id, followed_id)
+);
+
+-- الإشعارات
+create table notifications (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid not null references users(id),
+  type text not null, -- follow / gift
+  payload jsonb not null default '{}',
+  is_read boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+create index idx_notifications_user on notifications(user_id, created_at desc);
+
+-- إجمالي العملات التي أنفقها المستخدم مدى الحياة (لحساب مستوى VIP)
+alter table wallets add column total_coins_spent bigint not null default 0;
+
+-- متجر إطارات الصورة الرمزية
+create table avatar_frames (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  emoji text not null,
+  coin_cost bigint not null,
+  sort_order int not null default 0
+);
+
+create table user_frames (
+  user_id uuid not null references users(id),
+  frame_id uuid not null references avatar_frames(id),
+  purchased_at timestamptz not null default now(),
+  primary key (user_id, frame_id)
+);
+
+alter table users add constraint fk_equipped_frame foreign key (equipped_frame_id) references avatar_frames(id);
+
+insert into avatar_frames (name, emoji, coin_cost, sort_order) values
+  ('إطار فضي', '⚪', 200, 1),
+  ('إطار ذهبي', '🟡', 1000, 2),
+  ('إطار ماسي', '💎', 5000, 3),
+  ('إطار الذئب الملكي', '🐺', 15000, 4);

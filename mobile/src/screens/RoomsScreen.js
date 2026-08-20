@@ -78,6 +78,13 @@ export default function RoomsScreen({ navigation }) {
           )}
         />
       )}
+
+      <Pressable
+        style={({ pressed }) => [styles.fab, pressed && { opacity: 0.85 }]}
+        onPress={() => navigation.navigate("CreateRoom")}
+      >
+        <Text style={styles.fabText}>＋</Text>
+      </Pressable>
     </View>
   );
 }
@@ -128,4 +135,21 @@ const styles = StyleSheet.create({
   cardHost: { color: colors.textMuted, fontSize: 12.5, marginTop: 2 },
   errorText: { color: colors.danger, textAlign: "center", marginTop: spacing.xxl },
   empty: { color: colors.textMuted, textAlign: "center", marginTop: spacing.xxl },
+  fab: {
+    position: "absolute",
+    bottom: spacing.xl,
+    right: spacing.xl,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.gold,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+  },
+  fabText: { color: colors.textOnGold, fontSize: 28, fontWeight: "700", marginTop: -2 },
 });
