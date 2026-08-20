@@ -7,6 +7,7 @@ import {
   StyleSheet,
   I18nManager,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { colors, spacing, radius, typography } from "../../theme";
 import { authApi, session } from "../api";
@@ -58,6 +59,7 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <Image source={require("../../assets/icon.png")} style={styles.logo} resizeMode="cover" />
       {step === "phone" ? (
         <>
           <Text style={styles.title}>مرحبًا بك في وعد</Text>
@@ -148,6 +150,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     padding: spacing.xl,
     justifyContent: "center",
+  },
+  logo: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    borderWidth: 2,
+    borderColor: colors.gold,
+    alignSelf: "center",
+    marginBottom: spacing.xl,
   },
   title: { ...typography.title, color: colors.textPrimary, marginBottom: spacing.xs },
   subtitle: { ...typography.body, color: colors.textMuted, marginBottom: spacing.xl },

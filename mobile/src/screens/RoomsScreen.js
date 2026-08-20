@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, FlatList, Pressable, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, Image, FlatList, Pressable, StyleSheet, ActivityIndicator } from "react-native";
 import { colors, spacing, radius, typography } from "../../theme";
 import { roomsApi, walletApi, session } from "../api";
 
@@ -52,7 +52,10 @@ export default function RoomsScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>الغرف النشطة</Text>
+        <View style={styles.headerBrand}>
+          <Image source={require("../../assets/icon.png")} style={styles.headerLogo} />
+          <Text style={styles.headerTitle}>الغرف النشطة</Text>
+        </View>
         <View style={styles.walletPill}>
           <Text style={styles.walletText}>💰 {coinBalance}</Text>
         </View>
@@ -88,6 +91,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xl,
   },
+  headerBrand: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  headerLogo: { width: 30, height: 30, borderRadius: 15, borderWidth: 1, borderColor: colors.gold },
   headerTitle: { ...typography.title, color: colors.textPrimary },
   walletPill: {
     backgroundColor: colors.surface,
