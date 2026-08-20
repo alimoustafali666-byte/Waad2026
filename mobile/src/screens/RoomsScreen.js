@@ -1,12 +1,7 @@
-import React from "react";
-import { View, Text, FlatList, Pressable, StyleSheet } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { View, Text, FlatList, Pressable, StyleSheet, ActivityIndicator } from "react-native";
 import { colors, spacing, radius, typography } from "../../theme";
-
-const MOCK_ROOMS = [
-  { id: "1", title: "سهرة الخميس ☕", hostName: "سارة", listeners: 128 },
-  { id: "2", title: "نقاش: أفلام رمضان", hostName: "خالد", listeners: 54 },
-  { id: "3", title: "موسيقى وسط الليل 🎵", hostName: "ريم", listeners: 301 },
-];
+import { roomsApi, walletApi, session } from "../api";
 
 function RoomCard({ room, onPress }) {
   return (
@@ -15,35 +10,71 @@ function RoomCard({ room, onPress }) {
       style={({ pressed }) => [styles.card, pressed && { opacity: 0.9 }]}
     >
       <View style={styles.avatar}>
-        <Text style={styles.avatarText}>{room.hostName[0]}</Text>
+        <Text style={styles.avatarText}>{room.host_name?.[0] ?? "؟"}</Text>
       </View>
       <View style={{ flex: 1 }}>
         <Text style={styles.cardTitle}>{room.title}</Text>
-        <Text style={styles.cardHost}>بواسطة {room.hostName}</Text>
+        <Text style={styles.cardHost}>بواسطة {room.host_name}</Text>
       </View>
-      <Text style={styles.listeners}>{room.listeners} 🎧</Text>
     </Pressable>
   );
 }
 
 export default function RoomsScreen({ navigation }) {
+  const [rooms, setRooms] = useState([]);
+  const [coinBalance, setCoinBalance] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const { rooms } = await roomsApi.list();
+      setRooms(rooms);
+
+      const { userId } = await session.load();
+      if (userId) {
+        const wallet = await walletApi.get(userId);
+        setCoinBalance(wallet.coinBalance);
+      }
+    } catch (e) {
+      setError("تعذّر تحميل الغرف. تأكد من تشغيل الخادم.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>الغرف النشطة</Text>
-        <Pressable style={styles.walletPill}>
-          <Text style={styles.walletText}>💎 0</Text>
-        </Pressable>
+        <View style={styles.walletPill}>
+          <Text style={styles.walletText}>💰 {coinBalance}</Text>
+        </View>
       </View>
 
-      <FlatList
-        data={MOCK_ROOMS}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: spacing.lg, gap: spacing.md }}
-        renderItem={({ item }) => (
-          <RoomCard room={item} onPress={() => navigation.navigate("Room", { room: item })} />
-        )}
-      />
+      {loading ? (
+        <ActivityIndicator color={colors.gold} style={{ marginTop: spacing.xxl }} />
+      ) : error ? (
+        <Text style={styles.errorText}>{error}</Text>
+      ) : (
+        <FlatList
+          data={rooms}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ padding: spacing.lg, gap: spacing.md }}
+          onRefresh={load}
+          refreshing={loading}
+          ListEmptyComponent={<Text style={styles.empty}>لا توجد غرف نشطة الآن</Text>}
+          renderItem={({ item }) => (
+            <RoomCard room={item} onPress={() => navigation.navigate("Room", { room: item })} />
+          )}
+        />
+      )}
     </View>
   );
 }
@@ -90,5 +121,6 @@ const styles = StyleSheet.create({
   avatarText: { color: colors.goldLight, fontWeight: "700", fontSize: 18 },
   cardTitle: { color: colors.textPrimary, fontWeight: "700", fontSize: 15 },
   cardHost: { color: colors.textMuted, fontSize: 12.5, marginTop: 2 },
-  listeners: { color: colors.blush, fontWeight: "600", fontSize: 12.5 },
+  errorText: { color: colors.danger, textAlign: "center", marginTop: spacing.xxl },
+  empty: { color: colors.textMuted, textAlign: "center", marginTop: spacing.xxl },
 });

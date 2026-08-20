@@ -13,13 +13,14 @@ server/   خادم Node.js/Express — API، إدارة الغرف، المحف�
 
 - [x] هيكلة المشروع (mobile + server)
 - [x] هوية بصرية مستمدة من الشعار (`mobile/theme.js`)
-- [x] شاشات: البداية، تسجيل الدخول، قائمة الغرف، غرفة صوتية (بيانات وهمية)
-- [x] مخطط قاعدة البيانات الكامل (`server/src/db/schema.sql`)
-- [x] هيكل API أساسي (`/rooms`, `/wallet`) مع نقاط تكامل محددة بوضوح
-- [ ] ربط قاعدة بيانات PostgreSQL فعلية
+- [x] شاشات: البداية، تسجيل الدخول (OTP فعلي بخطوتين)، قائمة الغرف، غرفة صوتية
+- [x] مخطط قاعدة البيانات الكامل (`server/src/db/schema.sql`) — مُختبر على PostgreSQL فعلي
+- [x] ربط قاعدة بيانات PostgreSQL فعلية (`server/src/db/pool.js`)
+- [x] نظام مصادقة OTP كامل (`/auth/request-otp`, `/auth/verify-otp`) — مُختبر طرفًا لطرف
+- [x] `/rooms` و`/wallet` يقرآن من قاعدة البيانات الحقيقية بدل بيانات وهمية
 - [ ] تكامل Agora RTC للصوت اللحظي الفعلي
 - [ ] تكامل PayTabs (حساب إماراتي) لشراء العملات والسحب
-- [ ] نظام مصادقة حقيقي (OTP عبر الجوال)
+- [ ] مزوّد SMS فعلي لإرسال رمز OTP (حاليًا يُطبع في سجل الخادم فقط أثناء التطوير)
 - [ ] لوحة تحكم الوكالات
 
 ## التشغيل محليًا
@@ -28,6 +29,8 @@ server/   خادم Node.js/Express — API، إدارة الغرف، المحف�
 ```bash
 cd server
 npm install
+cp .env.example .env   # عدّل DATABASE_URL ليشير لقاعدة بيانات PostgreSQL لديك
+psql "$DATABASE_URL" -f src/db/schema.sql   # مرة واحدة فقط، لإنشاء الجداول
 npm run dev   # يعمل على http://localhost:4000
 ```
 

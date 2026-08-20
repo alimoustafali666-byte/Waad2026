@@ -11,6 +11,18 @@ create table users (
   created_at timestamptz not null default now()
 );
 
+-- رموز التحقق (OTP) لتسجيل الدخول برقم الجوال
+create table otp_codes (
+  id uuid primary key default uuid_generate_v4(),
+  phone text not null,
+  code text not null,
+  expires_at timestamptz not null,
+  consumed_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create index idx_otp_codes_phone on otp_codes(phone);
+
 create table agencies (
   id uuid primary key default uuid_generate_v4(),
   name text not null,
