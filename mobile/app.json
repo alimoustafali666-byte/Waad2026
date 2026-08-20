@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "وعد",
+    "slug": "waad",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#3B1826",
+    "splash": {
+      "backgroundColor": "#3B1826"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": { "supportsTablet": false, "bundleIdentifier": "com.waad.app" },
+    "android": { "package": "com.waad.app" }
+  }
+}
