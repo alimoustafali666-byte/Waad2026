@@ -12,15 +12,27 @@ import {
 import { colors, spacing, radius, typography } from "../../theme";
 import { authApi, session } from "../api";
 
+const COUNTRIES = [
+  { code: "AE", dial: "+971", flag: "🇦🇪", placeholder: "5X XXX XXXX" },
+  { code: "EG", dial: "+20", flag: "🇪🇬", placeholder: "1X XXXX XXXX" },
+  { code: "SA", dial: "+966", flag: "🇸🇦", placeholder: "5X XXX XXXX" },
+];
+
 export default function LoginScreen({ navigation }) {
   const [step, setStep] = useState("phone"); // "phone" | "otp"
+  const [country, setCountry] = useState(COUNTRIES[0]);
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const fullPhone = `+971${phone.replace(/\D/g, "")}`;
+  const fullPhone = `${country.dial}${phone.replace(/\D/g, "")}`;
+
+  function cycleCountry() {
+    const idx = COUNTRIES.findIndex((c) => c.code === country.code);
+    setCountry(COUNTRIES[(idx + 1) % COUNTRIES.length]);
+  }
 
   async function handleSendCode() {
     if (phone.length < 8) {
@@ -66,17 +78,20 @@ export default function LoginScreen({ navigation }) {
           <Text style={styles.subtitle}>أدخل رقم جوالك لإرسال رمز التحقق</Text>
 
           <View style={styles.inputRow}>
-            <Text style={styles.dial}>+971</Text>
+            <Pressable onPress={cycleCountry} style={styles.dialButton}>
+              <Text style={styles.dial}>{country.flag} {country.dial}</Text>
+            </Pressable>
             <TextInput
               value={phone}
               onChangeText={setPhone}
-              placeholder="5X XXX XXXX"
+              placeholder={country.placeholder}
               placeholderTextColor={colors.textMuted}
               keyboardType="phone-pad"
               style={styles.input}
               textAlign={I18nManager.isRTL ? "right" : "left"}
             />
           </View>
+          <Text style={styles.countryHint}>اضغط على رمز الدولة لتغييره (إمارات / مصر / السعودية)</Text>
 
           {!!error && <Text style={styles.error}>{error}</Text>}
 
@@ -172,7 +187,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     marginBottom: spacing.lg,
   },
-  dial: { color: colors.textMuted, marginInlineEnd: spacing.sm, fontWeight: "600" },
+  dialButton: {
+    marginInlineEnd: spacing.sm,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.xs,
+    borderRadius: radius.sm,
+    backgroundColor: colors.backgroundElevated,
+  },
+  dial: { color: colors.textMuted, fontWeight: "600" },
+  countryHint: {
+    ...typography.caption,
+    color: colors.textMuted,
+    marginTop: -spacing.md + 4,
+    marginBottom: spacing.lg,
+  },
   input: {
     flex: 1,
     color: colors.textPrimary,

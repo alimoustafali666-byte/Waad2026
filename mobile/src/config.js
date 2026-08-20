@@ -1,2 +1,2 @@
-// عدّل هذا الرابط ليشير لخادمك بعد نشره (حاليًا يفترض تشغيل الخادم محليًا للتطوير).
-export const API_BASE_URL = "http://localhost:4000";
+// خادم الإنتاج على Railway.
+export const API_BASE_URL = "https://waad2026-production.up.railway.app";
